@@ -1,12 +1,14 @@
 {
   "KPlugin": {
     "Id": "Ro",
-    "Name": "Ro Plasma Theme",
+    "Name": "Ro",
+    "Description": "Ro Plasma Theme",
     "Version": "0.1.0",
     "License": "GPL-2.0-or-later",
+    "EnabledByDefault": true,
     "Authors": [
       { "Name": "Ro Team" }
     ]
-  },
-  "X-Plasma-API": "5.0"
+  }
 }
+
