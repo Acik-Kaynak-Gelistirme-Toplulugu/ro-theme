@@ -1,8 +1,10 @@
 [SddmGreeterTheme]
-Name=Ro
-Description=Ro OS Login Theme
-Author=Ro Team
+Name=Ilk Izlenim
+Description=Grup 4 Siber Tasarimi
+Author=Tugba
+Copyright=2026
+License=GPL
 Type=sddm-theme
-Version=0.1
+Version=1.0
 MainScript=Main.qml
-Theme-Id=Ro
+ConfigFile=theme.conf
