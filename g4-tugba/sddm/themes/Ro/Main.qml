@@ -6,325 +6,108 @@ Rectangle {
     id: root
     width: Screen.width
     height: Screen.height
-    color: "#050C17"
 
-    property bool onayBekleniyor: false
-    property string secilenIslem: ""
-
-    // --- YÜZEN SİBER FİGÜRLER ---
-    Repeater {
-        model: 40
-        Item {
-            x: Math.random() * 2500
-            y: Math.random() * 1500
-            width: Math.random() * 60 + 20
-            height: width
-            opacity: Math.random() * 0.15 + 0.05
-            z: 0
-
-            Rectangle {
-                anchors.centerIn: parent
-                width: parent.width
-                height: index % 3 === 0 ? width : (index % 3 === 1 ? 2 : width)
-                radius: index % 3 === 0 ? width / 2 : (index % 3 === 2 ? 4 : 0)
-                color: "transparent"
-                border.color: index % 2 === 0 ? "#00f2fe" : "#4facfe"
-                border.width: 1.5
-
-                RotationAnimation on rotation {
-                    loops: Animation.Infinite
-                    from: 0; to: index % 2 === 0 ? 360 : -360
-                    duration: 20000 + (index * 500)
-                }
-            }
-
-            NumberAnimation on y {
-                loops: Animation.Infinite
-                from: y
-                to: -200
-                duration: 30000 + (index * 1000)
-            }
-        }
-    }
-
-    // --- SİBER IZGARA DOKUSU ---
-    Grid {
-        id: backgroundPattern
+    // --- SABİT ARKA PLAN (MOJAVE ÇÖLÜ) ---
+    Image {
+        id: backgroundImage
         anchors.fill: parent
-        opacity: 0.15
-        z: 0
-        rows: Math.ceil(parent.height / 40)
-        columns: Math.ceil(parent.width / 40)
-        
-        Repeater {
-            model: parent.rows * parent.columns
-            Rectangle { width: 1; height: 1; radius: 0.5; color: "#4facfe" }
-        }
+        source: "mojave.png" // Uzantı tam istediğin gibi .png oldu!
+        fillMode: Image.PreserveAspectCrop
+        smooth: true
     }
 
-    // --- ARKA PLAN VE SARMAL ---
-    MouseArea {
-        id: touchArea
-        anchors.fill: parent; hoverEnabled: true
-        property real mX: parent.width / 2; property real mY: parent.height / 2
-        onPositionChanged: { mX = mouse.x; mY = mouse.y }
-    }
-
-    Repeater {
-        model: 20
-        Rectangle {
-            width: 40 + index * 50; height: 40 + index * 50
-            radius: width / 3; color: "transparent"
-            border.color: index % 2 === 0 ? "#00f2fe" : "#4facfe"
-            border.width: 1.5 + index * 0.1
-            opacity: 0.7 - (index * 0.03)
-            z: 1
-            x: touchArea.mX - width / 2; y: touchArea.mY - height / 2
-            Behavior on x { SpringAnimation { spring: 2.0; damping: 0.2; mass: 1.0 + index * 0.15 } }
-            Behavior on y { SpringAnimation { spring: 2.0; damping: 0.2; mass: 1.0 + index * 0.15 } }
-            RotationAnimation on rotation {
-                loops: Animation.Infinite; from: 0; to: index % 2 === 0 ? 360 : -360
-                duration: 3000 + index * 200
-            }
-        }
-    }
-
-    // --- SİNEMATİK ODAKLANMA EFEKTİ ---
+    // --- MERKEZİ KOYU CAM PANEL ---
     Rectangle {
-        id: sinematikKarartici
-        anchors.fill: parent
-        color: "#000000"
-        opacity: (userSelector.popup.visible || sessionSelector.popup.visible) ? 0.65 : 0.0
-        Behavior on opacity { NumberAnimation { duration: 300 } }
-        z: 8
-    }
-
-    // --- ŞİFRE / ONAY KARARTMA EFEKTİ ---
-    Rectangle {
-        id: odakKarartici
-        anchors.fill: parent
-        color: "#E60A192F"
-        z: 8
-        opacity: (sifreGirisi.activeFocus || root.onayBekleniyor) ? 1.0 : 0.0
-        Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.InOutQuad } }
-    }
-
-    // --- MERKEZ CAM KUTU (PROFİL VE ŞİFRE) ---
-    Rectangle {
-        id: loginPaneli
+        id: loginBox
         width: 380; height: 500
         anchors.centerIn: parent
-        color: "#B30A192F"; radius: 24; border.color: "#40FFFFFF"; border.width: 1.5
-        z: 10
-        
-        opacity: root.onayBekleniyor ? 0.2 : 1.0
-        Behavior on opacity { NumberAnimation { duration: 300 } }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: sifreGirisi.forceActiveFocus()
-        }
+        color: "#B30A0514" 
+        radius: 35
+        border.color: "#80FF5400" 
+        border.width: 1.5
 
         Rectangle {
-            id: avatarCircle
-            width: 80; height: 80; radius: 40
-            anchors.top: parent.top; anchors.topMargin: 35; anchors.horizontalCenter: parent.horizontalCenter
-            color: "#1AFFFFFF"; border.color: "#00f2fe"; border.width: 2
+            id: avatar
+            width: 110; height: 110; radius: 55
+            anchors.top: parent.top; anchors.topMargin: 40; anchors.horizontalCenter: parent.horizontalCenter
+            color: "#1AFFFFFF"; border.color: "#FF5400"; border.width: 2.5
             Text {
                 anchors.centerIn: parent
                 text: userModel.lastUser ? userModel.lastUser.charAt(0).toUpperCase() : "👤"
-                color: "#00f2fe"; font.pixelSize: 36; font.bold: true
+                color: "#FF5400"; font.pixelSize: 50; font.bold: true
             }
         }
 
-        // --- KULLANICI SEÇİM MENÜSÜ (PROFİLİN ALTINDA) ---
         ComboBox {
             id: userSelector
-            anchors.top: avatarCircle.bottom; anchors.topMargin: 15; anchors.horizontalCenter: parent.horizontalCenter
-            width: 220; height: 45
-            z: 100
-            model: userModel
-            textRole: "name"
-            currentIndex: userModel.lastIndex
-            
-            background: Rectangle {
-                color: userSelector.popup.visible ? "#26ffffff" : "transparent"
-                border.color: userSelector.popup.visible ? "#4facfe" : "#80ffffff"
-                border.width: userSelector.popup.visible ? 2 : 1
-                radius: 22
-                Behavior on color { ColorAnimation { duration: 300 } }
-            }
-            contentItem: Text {
-                text: userSelector.currentText
-                color: "#FFFFFF"
-                font.pixelSize: 18
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+            anchors.top: avatar.bottom; anchors.topMargin: 30; anchors.horizontalCenter: parent.horizontalCenter
+            width: 260; height: 45
+            model: userModel; textRole: "name"; currentIndex: userModel.lastIndex
+            background: Rectangle { color: "#33FFFFFF"; radius: 15; border.color: "#55FFFFFF" }
+            contentItem: Text { text: userSelector.currentText; color: "white"; font.pixelSize: 16; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
         }
 
         Rectangle {
-            id: sifreKutusuArkaplan
-            width: 280; height: 50
-            anchors.top: userSelector.bottom; anchors.topMargin: 30; anchors.horizontalCenter: parent.horizontalCenter
-            color: "#33FFFFFF"; radius: 12; border.color: "#80FFFFFF"; border.width: 1
-
+            id: passField
+            width: 260; height: 45
+            anchors.top: userSelector.bottom; anchors.topMargin: 15; anchors.horizontalCenter: parent.horizontalCenter
+            color: "#33FFFFFF"; radius: 15; border.color: "#55FFFFFF"
             TextInput {
-                id: sifreGirisi
-                anchors.fill: parent; anchors.leftMargin: 15; anchors.rightMargin: 15
-                verticalAlignment: TextInput.AlignVCenter; color: "#FFFFFF"; font.pixelSize: 16
-                echoMode: TextInput.Password; passwordCharacter: "•"
-                focus: false
-                
-                Text {
-                    id: placeholder
-                    text: "Şifrenizi girmek için tıklayın..."; color: "#A0FFFFFF"; font.pixelSize: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: !sifreGirisi.text && !sifreGirisi.activeFocus
+                id: passwordInput
+                anchors.fill: parent; anchors.margins: 10
+                verticalAlignment: TextInput.AlignVCenter; horizontalAlignment: TextInput.AlignHCenter
+                echoMode: TextInput.Password; color: "white"; font.pixelSize: 18; focus: true
+                passwordCharacter: "●"
+                onAccepted: sddm.login(userSelector.currentText, passwordInput.text, sessionSelector.currentIndex)
+            }
+        }
+
+        Button {
+            anchors.top: passField.bottom; anchors.topMargin: 30; anchors.horizontalCenter: parent.horizontalCenter
+            width: 260; height: 50
+            background: Rectangle {
+                radius: 15
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#FF5400" } 
+                    GradientStop { position: 1.0; color: "#7B2CBF" } 
                 }
-                
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.IBeamCursor
-                    onClicked: sifreGirisi.forceActiveFocus()
-                }
-
-                onAccepted: sddm.login(userSelector.currentText, sifreGirisi.text, sessionSelector.currentIndex)
             }
-        }
-
-        Rectangle {
-            id: girisButonu
-            width: 280; height: 50
-            anchors.top: sifreKutusuArkaplan.bottom; anchors.topMargin: 20; anchors.horizontalCenter: parent.horizontalCenter
-            color: "#00f2fe"; radius: 12
-            Text { anchors.centerIn: parent; text: "Giriş Yap"; color: "#0A192F"; font.pixelSize: 18; font.bold: true }
-            MouseArea {
-                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                onEntered: girisButonu.color = "#4facfe"; onExited: girisButonu.color = "#00f2fe"
-                onClicked: sddm.login(userSelector.currentText, sifreGirisi.text, sessionSelector.currentIndex)
-            }
+            contentItem: Text { text: "Giriş Yap"; color: "white"; font.pixelSize: 18; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+            onClicked: sddm.login(userSelector.currentText, passwordInput.text, sessionSelector.currentIndex)
         }
     }
 
-    // --- SOL ALT KÖŞE: OTURUM MENÜSÜ ---
-    ComboBox {
-        id: sessionSelector
-        anchors.bottom: parent.bottom; anchors.left: parent.left
-        anchors.margins: 30
-        width: 160; height: 40
-        z: 100
-        model: sessionModel
-        textRole: "name"
-        currentIndex: sessionModel.lastIndex
-        
-        background: Rectangle {
-            color: sessionSelector.popup.visible ? "#26ffffff" : "transparent"
-            border.color: sessionSelector.popup.visible ? "#00f2fe" : "#50ffffff"
-            border.width: sessionSelector.popup.visible ? 2 : 1
-            radius: 20
-            Behavior on color { ColorAnimation { duration: 300 } }
-        }
-        contentItem: Text {
-            text: sessionSelector.currentText
-            color: "#FFFFFF"
-            font.pixelSize: 15
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-    }
-
-    // --- GÜÇ KONTROLLERİ ---
-    Row {
-        anchors.bottom: parent.bottom; anchors.bottomMargin: 40; anchors.right: parent.right; anchors.rightMargin: 50
-        spacing: 15; z: 10
-        opacity: root.onayBekleniyor ? 0.0 : 1.0
-        Behavior on opacity { NumberAnimation { duration: 300 } }
-
-        Rectangle {
-            width: 110; height: 40; color: "#1AFFFFFF"; radius: 8; border.color: "#40FFFFFF"; border.width: 1
-            Text { anchors.centerIn: parent; text: "Derin Uyku"; color: "white"; font.pixelSize: 13 }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: parent.color = "#4facfe"; onExited: parent.color = "#1AFFFFFF"
-                onClicked: { root.secilenIslem = "Derin Uyku"; root.onayBekleniyor = true; }
-            }
-        }
-
-        Rectangle {
-            width: 80; height: 40; color: "#1AFFFFFF"; radius: 8; border.color: "#40FFFFFF"; border.width: 1
-            Text { anchors.centerIn: parent; text: "Uyut"; color: "white"; font.pixelSize: 13 }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: parent.color = "#4facfe"; onExited: parent.color = "#1AFFFFFF"
-                onClicked: { root.secilenIslem = "Uyut"; root.onayBekleniyor = true; }
-            }
-        }
-
-        Rectangle {
-            width: 130; height: 40; color: "#1AFFFFFF"; radius: 8; border.color: "#40FFFFFF"; border.width: 1
-            Text { anchors.centerIn: parent; text: "Yeniden Başlat"; color: "white"; font.pixelSize: 13 }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: parent.color = "#4facfe"; onExited: parent.color = "#1AFFFFFF"
-                onClicked: { root.secilenIslem = "Yeniden Başlat"; root.onayBekleniyor = true; }
-            }
-        }
-
-        Rectangle {
-            width: 90; height: 40; color: "#D90A192F"; radius: 8; border.color: "#00f2fe"; border.width: 1
-            Text { anchors.centerIn: parent; text: "Kapat"; color: "#00f2fe"; font.pixelSize: 13; font.bold: true }
-            MouseArea {
-                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: { parent.color = "#00f2fe"; parent.children[0].color = "#0A192F" }
-                onExited: { parent.color = "#D90A192F"; parent.children[0].color = "#00f2fe" }
-                onClicked: { root.secilenIslem = "Kapat"; root.onayBekleniyor = true; }
-            }
-        }
-    }
-
-    // --- ONAY KUTUSU ---
+    // --- ALT BAR: OTURUM VE TÜM GÜÇ BUTONLARI ---
     Rectangle {
-        id: onayKutusu
-        width: 320; height: 180
-        anchors.centerIn: parent
-        z: 20; color: "#0A192F"; radius: 16; border.color: "#00f2fe"; border.width: 1.5
-        opacity: root.onayBekleniyor ? 1.0 : 0.0
-        visible: opacity > 0
-        Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutBack } }
+        anchors.bottom: parent.bottom; width: parent.width; height: 80
+        color: "#80000000"
 
-        Text {
-            anchors.top: parent.top; anchors.topMargin: 35; anchors.horizontalCenter: parent.horizontalCenter
-            text: root.secilenIslem + " işlemi başlatılacak.\nEmin misiniz?"
-            color: "white"; font.pixelSize: 16; horizontalAlignment: Text.AlignHCenter
+        ComboBox {
+            id: sessionSelector
+            anchors.left: parent.left; anchors.leftMargin: 30; anchors.verticalCenter: parent.verticalCenter
+            width: 180; height: 40; model: sessionModel; textRole: "name"
+            background: Rectangle { color: "#4DFFFFFF"; radius: 10; border.color: "transparent" }
+            contentItem: Text { text: sessionSelector.currentText; color: "white"; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
         }
 
         Row {
-            anchors.bottom: parent.bottom; anchors.bottomMargin: 25; anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 20
-            Rectangle {
-                width: 100; height: 40; radius: 8; color: "#1AFFFFFF"; border.color: "#80FFFFFF"; border.width: 1
-                Text { anchors.centerIn: parent; text: "İptal"; color: "white" }
-                MouseArea {
-                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onEntered: parent.color = "#33FFFFFF"; onExited: parent.color = "#1AFFFFFF"
-                    onClicked: { root.onayBekleniyor = false; }
-                }
+            anchors.right: parent.right; anchors.rightMargin: 30; anchors.verticalCenter: parent.verticalCenter
+            spacing: 15
+
+            Button {
+                text: "Uyut"; onClicked: sddm.suspend()
+                background: Rectangle { color: "#4DFFFFFF"; radius: 10 }
+                contentItem: Text { text: parent.text; color: "white"; font.bold: true; padding: 10 }
             }
-            Rectangle {
-                width: 100; height: 40; radius: 8; color: "#00f2fe"
-                Text { anchors.centerIn: parent; text: "Evet"; color: "#0A192F"; font.bold: true }
-                MouseArea {
-                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onEntered: parent.color = "#4facfe"; onExited: parent.color = "#00f2fe"
-                    onClicked: {
-                        if(root.secilenIslem === "Kapat") sddm.powerOff();
-                        else if(root.secilenIslem === "Yeniden Başlat") sddm.reboot();
-                        else if(root.secilenIslem === "Uyut") sddm.suspend();
-                        else if(root.secilenIslem === "Derin Uyku") sddm.hibernate();
-                    }
-                }
+            Button {
+                text: "Yeniden Başlat"; onClicked: sddm.reboot()
+                background: Rectangle { color: "#4DFFFFFF"; radius: 10 }
+                contentItem: Text { text: parent.text; color: "white"; font.bold: true; padding: 10 }
+            }
+            Button {
+                text: "Kapat"; onClicked: sddm.powerOff()
+                background: Rectangle { color: "#CCFF2A2A"; radius: 10 } 
+                contentItem: Text { text: parent.text; color: "white"; font.bold: true; padding: 10 }
             }
         }
     }
